@@ -1,5 +1,6 @@
 # 通过 SSH 将代码同步到 EC2 并在 deploy 目录执行 docker compose
 # Secrets: EC2_HOST, EC2_USER, EC2_DEPLOY_PATH, SETTIMO_AI (SSH 私钥全文)
+# 远端使用 sudo：EC2_USER 需对 sudo rsync / sudo docker 等配置 NOPASSWD（或交互式不可用）
 
 name: Deploy to EC2
 
@@ -33,6 +34,7 @@ jobs:
           DEPLOY_PATH: ${{ secrets.EC2_DEPLOY_PATH }}
         run: |
           rsync -avz --delete \
+            --rsync-path="sudo rsync" \
             -e "ssh -i $HOME/.ssh/ec2_deploy -o StrictHostKeyChecking=yes" \
             --exclude '.git' \
             --exclude '.github' \
@@ -50,8 +52,4 @@ jobs:
         run: |
           ssh -i "$HOME/.ssh/ec2_deploy" -o StrictHostKeyChecking=yes \
             "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" \
-            "set -euo pipefail
-             cd '${DEPLOY_PATH}/deploy'
-             chmod +x generate-env.sh docker-entrypoint.sh 2>/dev/null || true
-             ./generate-env.sh
-             docker compose up -d --build"
+            "sudo bash -lc 'set -euo pipefail; cd ${DEPLOY_PATH}/deploy; chmod +x generate-env.sh docker-entrypoint.sh 2>/dev/null || true; ./generate-env.sh; docker compose up -d --build'"
