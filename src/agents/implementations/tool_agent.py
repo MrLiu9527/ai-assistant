@@ -7,9 +7,9 @@ from typing import Any
 
 from loguru import logger
 
-from src.agents.base import BaseAgent, AgentContext, AgentResponse
+from src.agents.base import AgentContext, AgentResponse, BaseAgent
 from src.agents.factory import register_agent_type
-from src.models.agent import AgentType, AgentConfig
+from src.models.agent import AgentConfig, AgentType
 from src.skills import skill_registry
 
 
@@ -116,7 +116,6 @@ class ToolAgent(BaseAgent):
     ) -> dict[str, Any]:
         """调用 LLM（带工具）"""
         try:
-            import agentscope
             from agentscope.models import load_model_by_config_name
 
             model = load_model_by_config_name(self.model_config_name)

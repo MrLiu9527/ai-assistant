@@ -1,8 +1,9 @@
 """Skill 注册中心"""
 
 import inspect
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 from loguru import logger
 
@@ -71,15 +72,15 @@ class SkillInfo:
             # 根据类型注解推断类型
             if param.annotation != inspect.Parameter.empty:
                 annotation = param.annotation
-                if annotation == int:
+                if annotation is int:
                     param_info["type"] = "integer"
-                elif annotation == float:
+                elif annotation is float:
                     param_info["type"] = "number"
-                elif annotation == bool:
+                elif annotation is bool:
                     param_info["type"] = "boolean"
-                elif annotation == list or str(annotation).startswith("list"):
+                elif annotation is list or str(annotation).startswith("list"):
                     param_info["type"] = "array"
-                elif annotation == dict or str(annotation).startswith("dict"):
+                elif annotation is dict or str(annotation).startswith("dict"):
                     param_info["type"] = "object"
 
             # 添加默认值
@@ -272,7 +273,7 @@ class SkillRegistry:
         Returns:
             分类列表
         """
-        return list(set(s.category for s in self._skills.values()))
+        return list({s.category for s in self._skills.values()})
 
     def get_tags(self) -> list[str]:
         """获取所有标签

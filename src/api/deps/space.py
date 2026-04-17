@@ -6,9 +6,9 @@ from uuid import UUID
 from fastapi import Depends, HTTPException, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.deps.database import get_db
 from src.api.deps.auth import CurrentUser
-from src.models.space import Space, MemberRole
+from src.api.deps.database import get_db
+from src.models.space import MemberRole, Space
 from src.models.user import User
 from src.services.space_service import SpaceService
 

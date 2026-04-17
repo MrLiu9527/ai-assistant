@@ -7,9 +7,9 @@ from typing import Any
 
 from loguru import logger
 
-from src.agents.base import BaseAgent, AgentContext, AgentResponse
+from src.agents.base import AgentContext, AgentResponse, BaseAgent
 from src.agents.factory import register_agent_type
-from src.models.agent import AgentType, AgentConfig
+from src.models.agent import AgentType
 
 
 @register_agent_type(AgentType.DIALOG)
@@ -63,7 +63,6 @@ class DialogAgent(BaseAgent):
     async def _call_llm(self, messages: list[dict[str, str]]) -> str:
         """调用 LLM"""
         try:
-            import agentscope
             from agentscope.models import load_model_by_config_name
 
             model = load_model_by_config_name(self.model_config_name)

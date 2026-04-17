@@ -6,7 +6,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from src.models.agent import AgentType, AgentScope, AgentStatus
+from src.models.agent import AgentStatus, AgentType
 
 
 class AgentBase(BaseModel):

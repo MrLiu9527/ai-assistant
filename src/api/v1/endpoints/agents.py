@@ -1,26 +1,22 @@
 """Agent API 端点"""
 
-from typing import Annotated
-from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.deps.database import get_db
+from src.agents import agent_manager
 from src.api.deps.auth import CurrentUser
-from src.api.deps.space import SpaceMember, SpaceAdmin
-from src.api.schemas.common import ResponseModel, PaginatedResponse
+from src.api.deps.database import get_db
+from src.api.deps.space import SpaceAdmin, SpaceMember
 from src.api.schemas.agent import (
     AgentCreate,
-    AgentUpdate,
-    AgentResponse,
     AgentListResponse,
+    AgentResponse,
+    AgentUpdate,
 )
+from src.api.schemas.common import PaginatedResponse, ResponseModel
 from src.models.agent import AgentScope, AgentStatus
-from src.models.user import User
-from src.models.space import Space
 from src.services.agent_service import AgentConfigService
-from src.agents import agent_manager
 
 router = APIRouter()
 
@@ -97,7 +93,7 @@ async def get_agent(
 
     # 再查平台级
     if not config:
-        from src.services.space_service import SpaceService, SYSTEM_SPACE_CODE
+        from src.services.space_service import SYSTEM_SPACE_CODE, SpaceService
         space_service = SpaceService(db)
         system_space = await space_service.get_by_code(SYSTEM_SPACE_CODE)
         if system_space:
@@ -382,7 +378,7 @@ async def clone_agent(
     config = await service.get_by_agent_id(agent_id, space.id)
     if not config:
         # 尝试平台级
-        from src.services.space_service import SpaceService, SYSTEM_SPACE_CODE
+        from src.services.space_service import SYSTEM_SPACE_CODE, SpaceService
         space_service = SpaceService(db)
         system_space = await space_service.get_by_code(SYSTEM_SPACE_CODE)
         if system_space:

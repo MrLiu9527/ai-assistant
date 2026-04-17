@@ -1,9 +1,9 @@
 """用户服务"""
 
+import hashlib
 import uuid
 from datetime import datetime
 from typing import Any
-import hashlib
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -8,8 +8,8 @@ from typing import Any, TypeVar
 
 from loguru import logger
 
-from src.models.agent import AgentConfig, AgentType, AgentScope
-from src.models.conversation import Conversation, Message, MessageRole, MessageType
+from src.models.agent import AgentConfig, AgentScope
+from src.models.conversation import Conversation, Message
 
 
 @dataclass
@@ -207,7 +207,7 @@ class BaseAgent(ABC):
             else:
                 logger.warning(f"Skill not found: {skill_id}")
 
-    async def _load_tools(self) -> None:
+    async def _load_tools(self) -> None:  # noqa: B027
         """加载挂载的 Tools"""
         # TODO: 实现 Tool 加载逻辑
         pass

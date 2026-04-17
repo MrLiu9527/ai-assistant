@@ -3,7 +3,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, Header, status
+from fastapi import Depends, Header, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.deps.database import get_db
@@ -34,13 +34,13 @@ async def get_current_user(
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid user ID format",
-            )
+            ) from None
 
     # 方式2：Bearer Token（待实现完整的 JWT 验证）
     elif authorization and authorization.startswith("Bearer "):
-        token = authorization[7:]
+        _token = authorization[7:]
         # TODO: 实现 JWT Token 验证
-        # user_id = verify_token(token)
+        # user_id = verify_token(_token)
         raise HTTPException(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail="JWT authentication not implemented yet",

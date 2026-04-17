@@ -2,13 +2,14 @@
 
 import asyncio
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from functools import wraps
-from typing import Any, Callable, ParamSpec, TypeVar
+from typing import Any, ParamSpec, TypeVar
 
 from loguru import logger
 
-from src.skills.base.response import SkillResponse, SkillStatus
+from src.skills.base.response import SkillResponse
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -186,8 +187,8 @@ async def _execute_async(
 
             return response
 
-        except asyncio.TimeoutError:
-            last_error = asyncio.TimeoutError(
+        except TimeoutError:
+            last_error = TimeoutError(
                 f"Skill '{metadata.skill_id}' timed out after {metadata.timeout}s"
             )
             logger.warning(f"Skill timeout: {metadata.skill_id}")

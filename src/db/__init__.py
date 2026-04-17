@@ -1,5 +1,6 @@
 """数据库模块"""
 
+from src.db.base import Base
 from src.db.session import (
     AsyncSessionLocal,
     SyncSessionLocal,
@@ -8,7 +9,6 @@ from src.db.session import (
     get_sync_session,
     sync_engine,
 )
-from src.db.base import Base
 
 __all__ = [
     "Base",

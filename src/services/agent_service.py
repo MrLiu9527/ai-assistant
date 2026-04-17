@@ -3,10 +3,10 @@
 import uuid
 from typing import Any
 
-from sqlalchemy import select, update, and_, or_
+from sqlalchemy import and_, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.agent import AgentConfig, AgentType, AgentScope, AgentStatus
+from src.models.agent import AgentConfig, AgentScope, AgentStatus, AgentType
 
 
 class AgentConfigService:

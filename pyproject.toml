@@ -84,6 +84,13 @@ warn_unused_ignores = true
 [tool.ruff]
 line-length = 88
 target-version = "py312"
+exclude = [
+    ".git",
+    ".venv",
+    "migrations",
+]
+
+[tool.ruff.lint]
 select = [
     "E",   # pycodestyle errors
     "F",   # pyflakes
@@ -96,17 +103,25 @@ select = [
     "C4",  # flake8-comprehensions
 ]
 ignore = [
-    "D100", # Missing docstring in public module
-    "D104", # Missing docstring in public package
-]
-exclude = [
-    ".git",
-    ".venv",
-    "migrations",
+    "D100",  # Missing docstring in public module
+    "D104",  # Missing docstring in public package
+    # 中文 docstring 与现有风格：不要求英文句末标点 / 全量补文档
+    "D415",
+    "D102",
+    "D105",
+    "D107",
+    "B008",  # FastAPI Depends() in defaults
+    "E501",  # line length (black 已控宽，长尾由 formatter 处理)
+    "UP042",  # str+Enum 与 StrEnum：保持与 SQLAlchemy/Pydantic 习惯一致
+    "UP046",  # Generic[T] 基类：Pydantic v2 常见写法
+    "UP047",  # PEP 695 generics：与当前类型风格一致
 ]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"src/db/base.py" = ["N805"]  # SQLAlchemy __tablename__ 约定用 cls
 
 [project.scripts]
 ai-assistant = "src.api.run:main"

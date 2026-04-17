@@ -5,21 +5,16 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.deps.database import get_db
+from src.agents import agent_manager
 from src.api.deps.auth import CurrentUser
+from src.api.deps.database import get_db
 from src.api.deps.space import SpaceMember
 from src.api.schemas.common import ResponseModel
 from src.api.schemas.conversation import (
     ChatRequest,
     ChatResponse,
-    ConversationCreate,
-    ConversationResponse,
 )
-from src.models.user import User
-from src.models.space import Space
 from src.services.conversation_service import ConversationService
-from src.services.agent_service import AgentConfigService
-from src.agents import agent_manager
 
 router = APIRouter()
 

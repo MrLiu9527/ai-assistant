@@ -1,9 +1,7 @@
 """Agent 模块"""
 
-from src.agents.base import BaseAgent, AgentContext, AgentResponse
-from src.agents.registry import AgentRegistry, agent_registry
+from src.agents.base import AgentContext, AgentResponse, BaseAgent
 from src.agents.factory import AgentFactory, register_agent_type
-from src.agents.manager import AgentManager, agent_manager
 
 # 导入实现类以触发注册
 from src.agents.implementations import (
@@ -11,6 +9,8 @@ from src.agents.implementations import (
     DialogAgent,
     ToolAgent,
 )
+from src.agents.manager import AgentManager, agent_manager
+from src.agents.registry import AgentRegistry, agent_registry
 
 __all__ = [
     # 基类

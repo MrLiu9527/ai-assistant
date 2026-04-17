@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from src.api.v1.endpoints import agents, conversations, spaces, chat
+from src.api.v1.endpoints import agents, chat, conversations, spaces
 
 router = APIRouter()
 

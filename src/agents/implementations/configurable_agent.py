@@ -7,9 +7,9 @@ from typing import Any
 
 from loguru import logger
 
-from src.agents.base import BaseAgent, AgentContext, AgentResponse
+from src.agents.base import AgentContext, AgentResponse, BaseAgent
 from src.agents.factory import register_agent_type
-from src.models.agent import AgentType, AgentConfig
+from src.models.agent import AgentConfig, AgentType
 
 
 @register_agent_type(AgentType.DIALOG)
@@ -46,6 +46,7 @@ class ConfigurableAgent(BaseAgent):
         """初始化 LLM 客户端"""
         try:
             import agentscope
+
             from src.core.config import settings
 
             model_config_path = settings.agentscope_model_config_path
@@ -101,7 +102,6 @@ class ConfigurableAgent(BaseAgent):
             (响应文本, Token 信息)
         """
         try:
-            import agentscope
             from agentscope.models import load_model_by_config_name
 
             model = load_model_by_config_name(self.model_config_name)

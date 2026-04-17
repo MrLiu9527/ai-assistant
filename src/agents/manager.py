@@ -11,12 +11,12 @@ from typing import Any
 
 from loguru import logger
 
-from src.agents.base import BaseAgent, AgentContext, AgentResponse
+from src.agents.base import AgentContext, AgentResponse, BaseAgent
 from src.agents.factory import AgentFactory
-from src.models.agent import AgentConfig, AgentScope, AgentStatus
 from src.db.session import async_session_scope
+from src.models.agent import AgentConfig, AgentStatus
 from src.services.agent_service import AgentConfigService
-from src.services.space_service import SpaceService, SYSTEM_SPACE_CODE
+from src.services.space_service import SYSTEM_SPACE_CODE, SpaceService
 
 
 class AgentManager:

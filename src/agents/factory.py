@@ -3,8 +3,7 @@
 根据配置动态创建 Agent 实例
 """
 
-import uuid
-from typing import Any, Type
+from typing import Any
 
 from loguru import logger
 
@@ -20,13 +19,13 @@ class AgentFactory:
     """
 
     # Agent 类型到实现类的映射
-    _type_mapping: dict[AgentType, Type[BaseAgent]] = {}
+    _type_mapping: dict[AgentType, type[BaseAgent]] = {}
 
     @classmethod
     def register_type(
         cls,
         agent_type: AgentType,
-        agent_class: Type[BaseAgent],
+        agent_class: type[BaseAgent],
     ) -> None:
         """注册 Agent 类型实现
 
@@ -38,7 +37,7 @@ class AgentFactory:
         logger.info(f"Agent type registered: {agent_type.value} -> {agent_class.__name__}")
 
     @classmethod
-    def get_agent_class(cls, agent_type: AgentType) -> Type[BaseAgent] | None:
+    def get_agent_class(cls, agent_type: AgentType) -> type[BaseAgent] | None:
         """获取 Agent 类型对应的实现类
 
         Args:
@@ -125,7 +124,7 @@ def register_agent_type(agent_type: AgentType):
         ... class DialogAgent(BaseAgent):
         ...     pass
     """
-    def decorator(cls: Type[BaseAgent]) -> Type[BaseAgent]:
+    def decorator(cls: type[BaseAgent]) -> type[BaseAgent]:
         AgentFactory.register_type(agent_type, cls)
         return cls
 

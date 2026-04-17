@@ -4,7 +4,7 @@
 """
 
 import asyncio
-import uuid
+
 from loguru import logger
 
 from src.agents import agent_manager
@@ -64,8 +64,8 @@ async def demo_conversation():
 
     try:
         from src.db.session import async_session_scope
+        from src.services.space_service import SYSTEM_SPACE_CODE, SpaceService
         from src.services.user_service import UserService
-        from src.services.space_service import SpaceService, SYSTEM_SPACE_CODE
 
         # 获取用户和空间
         async with async_session_scope() as session:

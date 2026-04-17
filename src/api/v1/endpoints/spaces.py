@@ -1,25 +1,23 @@
 """Space API 端点"""
 
-from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.deps.database import get_db
 from src.api.deps.auth import CurrentUser
-from src.api.deps.space import SpaceMember, SpaceAdmin, SpaceOwner
-from src.api.schemas.common import ResponseModel, PaginatedResponse
+from src.api.deps.database import get_db
+from src.api.deps.space import SpaceAdmin, SpaceMember, SpaceOwner
+from src.api.schemas.common import PaginatedResponse, ResponseModel
 from src.api.schemas.space import (
-    SpaceCreate,
-    SpaceUpdate,
-    SpaceResponse,
     MemberAdd,
-    MemberUpdate,
     MemberResponse,
+    MemberUpdate,
+    SpaceCreate,
+    SpaceResponse,
+    SpaceUpdate,
 )
-from src.models.user import User
-from src.models.space import Space, MemberRole
+from src.models.space import MemberRole
 from src.services.space_service import SpaceService
 from src.services.user_service import UserService
 

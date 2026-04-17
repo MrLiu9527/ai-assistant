@@ -3,7 +3,7 @@
 import uuid
 from typing import Any
 
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.conversation import Message, MessageRole, MessageType

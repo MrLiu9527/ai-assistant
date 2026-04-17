@@ -1,12 +1,11 @@
 """文本处理 Skills 测试"""
 
-import pytest
 
+from src.skills.base import SkillStatus
 from src.skills.common.text_processing import (
     extract_keywords,
     summarize_text,
 )
-from src.skills.base import SkillStatus
 
 
 class TestExtractKeywords:

@@ -1,9 +1,9 @@
 """数据模型"""
 
-from src.models.user import User, UserStatus
-from src.models.space import Space, SpaceMember, SpaceType, SpaceStatus, MemberRole
-from src.models.agent import AgentConfig, AgentType, AgentScope, AgentStatus
+from src.models.agent import AgentConfig, AgentScope, AgentStatus, AgentType
 from src.models.conversation import Conversation, Message, MessageRole, MessageType
+from src.models.space import MemberRole, Space, SpaceMember, SpaceStatus, SpaceType
+from src.models.user import User, UserStatus
 
 __all__ = [
     # User

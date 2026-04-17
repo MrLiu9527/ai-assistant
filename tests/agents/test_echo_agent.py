@@ -1,11 +1,12 @@
 """Agent 测试"""
 
-import pytest
 import uuid
 
-from src.agents.base import AgentContext, AgentResponse
+import pytest
+
+from src.agents.base import AgentContext
 from src.agents.implementations.configurable_agent import ConfigurableAgent
-from src.models.agent import AgentConfig, AgentType, AgentScope, AgentStatus
+from src.models.agent import AgentConfig, AgentScope, AgentStatus, AgentType
 
 
 class TestConfigurableAgent:
@@ -54,7 +55,7 @@ class TestConfigurableAgent:
     def test_get_welcome_message(self, mock_config):
         """测试获取欢迎消息"""
         agent = ConfigurableAgent(config=mock_config)
-        
+
         assert agent.get_welcome_message() == "欢迎使用测试助手！"
 
     @pytest.mark.asyncio

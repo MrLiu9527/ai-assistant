@@ -2,7 +2,7 @@
 
 import enum
 import uuid
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import (
     Boolean,
@@ -19,8 +19,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
-    from src.models.user import User
     from src.models.agent import AgentConfig
+    from src.models.user import User
 
 
 class SpaceType(str, enum.Enum):

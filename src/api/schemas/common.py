@@ -1,6 +1,7 @@
 """通用 Schema"""
 
 from typing import Any, Generic, TypeVar
+
 from pydantic import BaseModel, Field
 
 T = TypeVar("T")

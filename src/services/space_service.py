@@ -3,11 +3,10 @@
 import uuid
 from typing import Any
 
-from sqlalchemy import select, update, and_
+from sqlalchemy import and_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.space import Space, SpaceMember, SpaceType, SpaceStatus, MemberRole
-
+from src.models.space import MemberRole, Space, SpaceMember, SpaceStatus, SpaceType
 
 # 系统空间编码
 SYSTEM_SPACE_CODE = "system"
@@ -132,14 +131,14 @@ class SpaceService:
             .where(
                 and_(
                     SpaceMember.user_id == user_id,
-                    SpaceMember.is_active == True,
+                    SpaceMember.is_active.is_(True),
                     Space.status == SpaceStatus.ACTIVE,
                 )
             )
         )
 
         if not include_system:
-            query = query.where(Space.is_system == False)
+            query = query.where(Space.is_system.is_(False))
 
         query = query.order_by(Space.created_at.desc())
         query = query.limit(limit).offset(offset)
@@ -265,7 +264,7 @@ class SpaceService:
         if role:
             query = query.where(SpaceMember.role == role)
         if is_active:
-            query = query.where(SpaceMember.is_active == True)
+            query = query.where(SpaceMember.is_active.is_(True))
 
         result = await self.session.execute(query)
         return list(result.scalars().all())

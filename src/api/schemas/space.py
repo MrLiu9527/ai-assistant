@@ -6,7 +6,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from src.models.space import SpaceType, MemberRole
+from src.models.space import MemberRole, SpaceType
 
 
 class SpaceCreate(BaseModel):

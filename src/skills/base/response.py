@@ -87,7 +87,7 @@ class SkillResponse:
             ServiceResponse 对象
         """
         try:
-            from agentscope.service import ServiceResponse, ServiceExecStatus
+            from agentscope.service import ServiceExecStatus, ServiceResponse
 
             if self.is_success:
                 return ServiceResponse(

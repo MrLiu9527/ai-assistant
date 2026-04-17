@@ -3,7 +3,7 @@
 import re
 from collections import Counter
 
-from src.skills.base import skill, SkillResponse
+from src.skills.base import SkillResponse, skill
 
 
 @skill(

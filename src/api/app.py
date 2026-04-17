@@ -8,9 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from loguru import logger
 
+from src.agents import agent_manager
 from src.api.v1 import router as api_v1_router
 from src.core.config import settings
-from src.agents import agent_manager
 
 
 @asynccontextmanager
