@@ -1,0 +1,38 @@
+[
+    {
+        "config_name": "default",
+        "model_type": "dashscope_chat",
+        "model_name": "qwen-turbo",
+        "api_key": "${DASHSCOPE_API_KEY}"
+    },
+    {
+        "config_name": "qwen-plus",
+        "model_type": "dashscope_chat",
+        "model_name": "qwen-plus",
+        "api_key": "${DASHSCOPE_API_KEY}"
+    },
+    {
+        "config_name": "qwen-max",
+        "model_type": "dashscope_chat",
+        "model_name": "qwen-max",
+        "api_key": "${DASHSCOPE_API_KEY}"
+    },
+    {
+        "config_name": "openai-gpt4",
+        "model_type": "openai_chat",
+        "model_name": "gpt-4",
+        "api_key": "${OPENAI_API_KEY}",
+        "client_args": {
+            "base_url": "${OPENAI_API_BASE}"
+        }
+    },
+    {
+        "config_name": "openai-gpt35",
+        "model_type": "openai_chat",
+        "model_name": "gpt-3.5-turbo",
+        "api_key": "${OPENAI_API_KEY}",
+        "client_args": {
+            "base_url": "${OPENAI_API_BASE}"
+        }
+    }
+]
