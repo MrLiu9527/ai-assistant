@@ -49,11 +49,18 @@ services:
     expose:
       - "8000"
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/health"]
+      # 使用 Python，避免 slim 镜像或未装 curl 时一直 unhealthy
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4).read()",
+        ]
       interval: 15s
-      timeout: 5s
+      timeout: 8s
       retries: 8
-      start_period: 180s
+      start_period: 240s
     depends_on:
       postgres:
         condition: service_healthy
@@ -67,9 +74,10 @@ services:
       - "${HTTP_PORT:-80}:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    # 勿等 api healthy：api 若 init 较慢或健康检查偶发失败，nginx 会永远不启动
     depends_on:
       api:
-        condition: service_healthy
+        condition: service_started
 
 volumes:
   postgres_data:

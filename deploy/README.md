@@ -34,6 +34,7 @@ curl -s http://127.0.0.1/health
 ## 常见问题
 
 - **`api` 一直 `starting` 或 `unhealthy`**：`docker compose logs api`。常见原因：数据库未就绪、镜像构建失败、`init_db` 异常。
+- **Nginx 不启动**：旧版 compose 曾要求 `api` **healthy** 后才起 Nginx；若 `api` 健康检查失败（例如镜像里没有 `curl`），Nginx 会一直不出现。当前已改为 **`api` 一起动就起 Nginx**；若 API 仍在初始化，短时间访问可能出现 **502**，属正常现象。
 - **只有 `postgres` / `redis` 镜像、没有 `ai-assistant-api`**：在 `deploy` 目录执行 `docker compose build api` 或 `docker compose up -d --build`，并确认 CI 里 `docker compose` 已成功跑完。
 - **镜像名**：API 镜像默认为 **`ai-assistant-api:latest`**（可在 `.env` 中设置 `API_IMAGE_NAME` / `API_IMAGE_TAG`）。
 
