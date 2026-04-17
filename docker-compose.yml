@@ -1,0 +1,36 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/}
+        VITE_CHAT_ENTRY: ${VITE_CHAT_ENTRY:-/child/chat/}
+    ports:
+      - "8080:80"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL}
+      DATABASE_SYNC_URL: ${DATABASE_SYNC_URL:?set DATABASE_SYNC_URL}
+      APP_ENV: ${APP_ENV:-production}
+      DEBUG: ${DEBUG:-false}
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      INIT_DB: ${INIT_DB:-0}
+      UVICORN_WORKERS: ${UVICORN_WORKERS:-2}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: all_in_ai
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d all_in_ai"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

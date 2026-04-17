@@ -1,0 +1,75 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-ec2
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.repository != '' && vars.EC2_DEPLOY_ENABLED == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          load: true
+          tags: ai-assistant:latest
+          build-args: |
+            VITE_API_BASE_URL=/
+            VITE_CHAT_ENTRY=/child/chat/
+
+      - name: Save image
+        run: docker save ai-assistant:latest | gzip -1 > /tmp/ai-assistant-image.tar.gz
+
+      - name: Configure SSH
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$EC2_SSH_KEY" > ~/.ssh/ec2_deploy_key
+          chmod 600 ~/.ssh/ec2_deploy_key
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Upload image and compose file
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          test -n "${DEPLOY_PATH:-}" || { echo "DEPLOY_PATH secret is required" >&2; exit 1; }
+          ssh -i ~/.ssh/ec2_deploy_key -o StrictHostKeyChecking=yes "${EC2_USER}@${EC2_HOST}" "mkdir -p '${DEPLOY_PATH}'"
+          scp -i ~/.ssh/ec2_deploy_key -o StrictHostKeyChecking=yes /tmp/ai-assistant-image.tar.gz "${EC2_USER}@${EC2_HOST}:${DEPLOY_PATH}/"
+          scp -i ~/.ssh/ec2_deploy_key -o StrictHostKeyChecking=yes deploy/docker-compose.prod.yml "${EC2_USER}@${EC2_HOST}:${DEPLOY_PATH}/docker-compose.prod.yml"
+
+      - name: Load image and restart stack
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/ec2_deploy_key -o StrictHostKeyChecking=yes "${EC2_USER}@${EC2_HOST}" bash -s <<EOF
+          set -euo pipefail
+          cd '${DEPLOY_PATH}'
+          gunzip -c ai-assistant-image.tar.gz | docker load
+          rm -f ai-assistant-image.tar.gz
+          docker compose -f docker-compose.prod.yml up -d --no-build --remove-orphans
+          docker image prune -f --filter "dangling=true" || true
+          EOF
+
+      - name: Remove SSH key
+        if: always()
+        run: rm -f ~/.ssh/ec2_deploy_key

@@ -171,7 +171,7 @@ async def create_agent(
         created_by=current_user.id,
         model_provider=data.model_provider,
         model_name=data.model_name,
-        model_config=data.model_config,
+        model_config=data.provider_model_options,
         system_prompt=data.system_prompt,
         welcome_message=data.welcome_message,
         skills=data.skills,
@@ -238,8 +238,8 @@ async def update_agent(
             detail="Cannot modify platform-level agent",
         )
 
-    # 更新字段
-    update_data = data.model_dump(exclude_unset=True)
+    # 更新字段（API 仍使用 model_config 字段名）
+    update_data = data.model_dump(exclude_unset=True, by_alias=True)
     if update_data:
         config = await service.update(config.id, **update_data)
 
@@ -369,11 +369,11 @@ async def delete_agent(
 )
 async def clone_agent(
     agent_id: str,
-    new_agent_id: str = Query(..., description="新 Agent ID"),
-    new_name: str = Query(..., description="新 Agent 名称"),
     space: SpaceAdmin,
     current_user: CurrentUser,
     db: AsyncSession = Depends(get_db),
+    new_agent_id: str = Query(..., description="新 Agent ID"),
+    new_name: str = Query(..., description="新 Agent 名称"),
 ):
     """克隆 Agent"""
     service = AgentConfigService(db)

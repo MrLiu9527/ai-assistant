@@ -4,13 +4,15 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.models.agent import AgentType, AgentScope, AgentStatus
 
 
 class AgentBase(BaseModel):
-    """Agent 基础字段"""
+    """Agent 基础字段."""
+
+    model_config = ConfigDict(populate_by_name=True)
 
     name: str = Field(..., min_length=1, max_length=128, description="Agent 名称")
     description: str | None = Field(None, max_length=1000, description="Agent 描述")
@@ -19,12 +21,16 @@ class AgentBase(BaseModel):
 
 
 class AgentCreate(AgentBase):
-    """创建 Agent"""
+    """创建 Agent."""
 
     agent_id: str = Field(..., min_length=1, max_length=64, pattern=r"^[a-z][a-z0-9_]*$", description="Agent ID（小写字母开头，仅含小写字母、数字、下划线）")
     model_provider: str = Field(default="dashscope", description="模型提供商")
     model_name: str = Field(default="qwen-turbo", description="模型名称")
-    model_config: dict[str, Any] | None = Field(default=None, description="模型配置")
+    provider_model_options: dict[str, Any] | None = Field(
+        default=None,
+        alias="model_config",
+        description="模型配置",
+    )
     system_prompt: str | None = Field(None, description="系统提示词")
     welcome_message: str | None = Field(None, description="欢迎消息")
     skills: list[str] | None = Field(default=None, description="Skill ID 列表")
@@ -38,7 +44,9 @@ class AgentCreate(AgentBase):
 
 
 class AgentUpdate(BaseModel):
-    """更新 Agent"""
+    """更新 Agent."""
+
+    model_config = ConfigDict(populate_by_name=True)
 
     name: str | None = Field(None, min_length=1, max_length=128, description="Agent 名称")
     description: str | None = Field(None, max_length=1000, description="Agent 描述")
@@ -47,7 +55,11 @@ class AgentUpdate(BaseModel):
     status: AgentStatus | None = Field(None, description="Agent 状态")
     model_provider: str | None = Field(None, description="模型提供商")
     model_name: str | None = Field(None, description="模型名称")
-    model_config: dict[str, Any] | None = Field(None, description="模型配置")
+    provider_model_options: dict[str, Any] | None = Field(
+        None,
+        alias="model_config",
+        description="模型配置",
+    )
     system_prompt: str | None = Field(None, description="系统提示词")
     welcome_message: str | None = Field(None, description="欢迎消息")
     skills: list[str] | None = Field(None, description="Skill ID 列表")
@@ -61,7 +73,9 @@ class AgentUpdate(BaseModel):
 
 
 class AgentResponse(BaseModel):
-    """Agent 响应"""
+    """Agent 响应."""
+
+    model_config = ConfigDict(from_attributes=True)
 
     id: UUID = Field(..., description="配置 ID")
     agent_id: str = Field(..., description="Agent ID")
@@ -85,11 +99,11 @@ class AgentResponse(BaseModel):
     created_at: datetime = Field(..., description="创建时间")
     updated_at: datetime = Field(..., description="更新时间")
 
-    model_config = {"from_attributes": True}
-
 
 class AgentListResponse(BaseModel):
-    """Agent 列表响应"""
+    """Agent 列表响应."""
+
+    model_config = ConfigDict(from_attributes=True)
 
     id: UUID = Field(..., description="配置 ID")
     agent_id: str = Field(..., description="Agent ID")
@@ -102,5 +116,3 @@ class AgentListResponse(BaseModel):
     welcome_message: str | None = Field(None, description="欢迎消息")
     usage_count: int = Field(default=0, description="使用次数")
     created_at: datetime = Field(..., description="创建时间")
-
-    model_config = {"from_attributes": True}

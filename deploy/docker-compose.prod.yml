@@ -1,0 +1,10 @@
+services:
+  app:
+    image: ai-assistant:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    env_file:
+      - .env
+    environment:
+      INIT_DB: ${INIT_DB:-0}

@@ -117,6 +117,56 @@ pnpm dev:shell
 
 生产环境将子应用构建产物部署后，把主应用的 `VITE_CHAT_ENTRY` 指向子应用入口 URL（与 `vite-plugin-qiankun` 的 `base` 一致）。
 
+Docker 镜像构建时已默认使用同域：`VITE_API_BASE_URL=/`、`VITE_CHAT_ENTRY=/child/chat/`（由 Nginx 反代 FastAPI 与静态资源）。
+
+## 部署到 EC2（Docker + GitHub Actions）
+
+镜像内同时运行 **Nginx（80 端口）** 与 **Uvicorn（127.0.0.1:8000）**：静态站点提供微前端，`/api/` 与 `/health` 反代到后端。数据库请使用 **RDS 或自建 PostgreSQL**，在服务器上通过环境变量注入连接串（不要把 `.env` 提交到仓库）。
+
+### 1. 准备 EC2
+
+- 系统建议：Ubuntu 22.04 / 24.04，安全组放行 **80**（及 SSH **22**）。
+- 安装 Docker 与 Compose 插件（官方文档：[Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/)）。
+- 将部署用户加入 `docker` 组，或允许该用户执行 `docker` / `docker compose`。
+
+### 2. 服务器目录与配置
+
+在 EC2 上创建目录（示例 `/opt/ai-assistant`），放入 `deploy/.env.example` 为模板的 **`.env`**（与 `docker-compose.prod.yml` 同目录），至少包含：
+
+- `DATABASE_URL`（`postgresql+asyncpg://...`）
+- `DATABASE_SYNC_URL`（`postgresql+psycopg2://...`，供迁移/脚本使用）
+- `APP_ENV=production`、`DEBUG=false`
+- 按需填写 `DASHSCOPE_API_KEY` 等
+
+首次部署若库为空，可临时设置 `INIT_DB=1` 执行一次 `scripts/init_db.py`（见 `docker/entrypoint.sh`），完成后改回 `0`。
+
+### 3. 启用 GitHub Actions 部署
+
+仓库 **Settings → Secrets and variables → Actions** 中新建 Secret：
+
+| Secret | 说明 |
+|--------|------|
+| `EC2_HOST` | 服务器公网 IP 或域名 |
+| `EC2_USER` | SSH 用户名（如 `ubuntu`） |
+| `EC2_SSH_KEY` | 对应私钥全文（`-----BEGIN ...` 起） |
+| `DEPLOY_PATH` | 服务器上部署目录绝对路径（如 `/opt/ai-assistant`，该目录下需已有 `.env`） |
+
+在 **Settings → Secrets and variables → Actions → Variables** 中新增：
+
+| Variable | 值 |
+|----------|-----|
+| `EC2_DEPLOY_ENABLED` | `true` |
+
+向 `main` 推送代码将触发 **Deploy to EC2**：在 Runner 上构建镜像、`docker save` 后经 SSH 传到 `DEPLOY_PATH`，再 `docker load` 与 `docker compose -f docker-compose.prod.yml up -d`。未设置 `EC2_DEPLOY_ENABLED=true` 时该工作流会跳过，避免误部署。
+
+### 4. 本地构建与 compose 试跑
+
+```bash
+docker compose up --build
+```
+
+默认映射 **8080:80**，数据库使用 compose 内 PostgreSQL；生产请改用外部数据库并只部署 `deploy/docker-compose.prod.yml` 流程。
+
 ## 项目结构
 
 ```
@@ -188,6 +238,11 @@ ai-assistant/
 │   └── SKILLS_DEVELOPMENT_GUIDE.md
 ├── pyproject.toml                # 项目配置
 ├── alembic.ini                   # Alembic 配置
+├── Dockerfile                    # 生产镜像（Nginx + API + 前端静态）
+├── docker-compose.yml            # 本地一体化试跑（可选内置 Postgres）
+├── docker/                       # 镜像内 Nginx 与入口脚本
+├── deploy/                       # EC2 生产 compose 与 env 示例
+├── .github/workflows/            # CI 与 EC2 部署
 └── .env.example                  # 环境变量模板
 ```
 
