@@ -52,17 +52,21 @@ cp .env.example .env
 # - OPENAI_API_KEY: OpenAI API Key（可选）
 ```
 
-### 3. 启动 PostgreSQL
+### 3. 启动 PostgreSQL 与 Redis（Docker）
+
+仓库根目录提供 `docker-compose.yml`，一键启动 **PostgreSQL 15** 与 **Redis 7**（数据在命名卷中持久化）：
 
 ```bash
-# 使用 Docker 启动
-docker run -d \
-  --name postgres-allinai \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=all_in_ai \
-  -p 5432:5432 \
-  postgres:15
+docker compose up -d
+docker compose ps
+```
+
+默认端口：`5432`（Postgres）、`6379`（Redis）。`.env.example` 中的 `DATABASE_*` / `REDIS_URL` 在「应用跑在本机、依赖跑在容器」时已与 `localhost` 对齐。
+
+停止并移除容器（保留数据卷）：
+
+```bash
+docker compose down
 ```
 
 ### 4. 初始化数据库
@@ -81,7 +85,45 @@ python scripts/init_db.py
 - 系统空间：用于存放平台级 Agent
 - 平台级 Agent：通用助手、工具助手
 
-### 5. 启动 API 服务
+### 5. GitHub SSH 密钥怎么配
+
+常见有两种场景，不要混用：
+
+**A. EC2 / 自建机上 `git clone git@github.com:...`（只拉代码）**
+
+1. 在服务器上生成密钥（不要带口令，方便 CI 拉取时可改用下面 B 的专用密钥）：
+
+   ```bash
+   ssh-keygen -t ed25519 -C "ec2-ai-assistant-deploy" -f ~/.ssh/github_ai_assistant -N ""
+   ```
+
+2. 把 **`~/.ssh/github_ai_assistant.pub`** 的内容加到 GitHub 仓库 **Settings → Deploy keys → Add deploy key**（只读勾选 *Allow write access* 仅在你需要机器上 `git push` 时打开）。
+
+3. 本机 SSH 配置示例 `~/.ssh/config`：
+
+   ```text
+   Host github.com-ai-assistant
+     HostName github.com
+     User git
+     IdentityFile ~/.ssh/github_ai_assistant
+     IdentitiesOnly yes
+   ```
+
+   克隆时使用：`git clone git@github.com-ai-assistant:OWNER/ai-assistant.git`
+
+**B. GitHub Actions 通过 SSH 登录 EC2 执行部署**
+
+1. 另生成一对 **仅用于 CI → EC2** 的密钥，不要把个人日常用的私钥塞进 GitHub。
+
+2. 把 **公钥** 追加到 EC2 上部署用户的 `~/.ssh/authorized_keys`。
+
+3. 把 **私钥全文**（含 `-----BEGIN` / `END-----`）放进仓库 **Settings → Secrets and variables → Actions**，例如命名为 `EC2_SSH_KEY`（若工作流里用了别的名字，与工作流保持一致）。
+
+4. 同时在 Secrets 里配置 `EC2_HOST`、`EC2_USER` 等；工作流里用 `webfactory/ssh-agent` 或 `appleboy/ssh-action` 加载私钥即可。
+
+安全建议：优先为 Actions 配置 **短生命周期密钥** 或 **专用部署账户**；私钥永远不要提交进仓库。
+
+### 6. 启动 API 服务
 
 ```bash
 # 开发模式（自动重载）
@@ -188,6 +230,7 @@ ai-assistant/
 │   └── SKILLS_DEVELOPMENT_GUIDE.md
 ├── pyproject.toml                # 项目配置
 ├── alembic.ini                   # Alembic 配置
+├── docker-compose.yml            # Postgres + Redis（开发依赖）
 └── .env.example                  # 环境变量模板
 ```
 
@@ -385,6 +428,7 @@ pytest --cov=src --cov-report=html
 | `DEBUG` | 调试模式 | true |
 | `DATABASE_URL` | 数据库连接（异步） | postgresql+asyncpg://... |
 | `DATABASE_SYNC_URL` | 数据库连接（同步） | postgresql+psycopg2://... |
+| `REDIS_URL` | Redis 连接 | redis://localhost:6379/0 |
 | `DASHSCOPE_API_KEY` | 阿里云 API Key | - |
 | `OPENAI_API_KEY` | OpenAI API Key | - |
 
