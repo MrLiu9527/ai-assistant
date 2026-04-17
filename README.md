@@ -93,6 +93,19 @@ python -m src.api.run
 
 API 文档地址：http://localhost:8000/docs
 
+### EC2 Docker 一键栈（PostgreSQL + Redis + API）
+
+在服务器已安装 Docker / Compose 的前提下，将仓库放到部署目录后执行：
+
+```bash
+cd ai-assistant/deploy
+chmod +x generate-env.sh docker-entrypoint.sh
+./generate-env.sh
+docker compose up -d --build
+```
+
+`generate-env.sh` 会生成 `deploy/.env`（随机数据库与 Redis 密码等，勿提交）。详见 [deploy/README.md](deploy/README.md)。CI 推送部署见 [.github/workflows/deploy-ec2.yml](.github/workflows/deploy-ec2.yml)。
+
 ## 前端（微前端 + assistant-ui）
 
 仓库内 `frontend/` 为 **pnpm workspace**，包含：

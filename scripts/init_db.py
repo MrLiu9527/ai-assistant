@@ -4,6 +4,7 @@
 """
 
 import asyncio
+import os
 import sys
 from pathlib import Path
 
@@ -48,9 +49,11 @@ async def init_admin_user() -> None:
     from src.db.session import async_session_scope
     from src.services.user_service import UserService
 
+    admin_password = os.environ.get("ADMIN_PASSWORD", "admin123")
+
     async with async_session_scope() as session:
         service = UserService(session)
-        admin = await service.get_or_create_admin()
+        admin = await service.get_or_create_admin(password=admin_password)
         logger.info(f"Admin user ready: {admin.username} ({admin.id})")
 
 
